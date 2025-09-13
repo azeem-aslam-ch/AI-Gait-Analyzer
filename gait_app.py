@@ -29,6 +29,7 @@ if uploaded_file is not None:
     # Uploaded video ko ek temporary file mein save karein
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
         tfile.write(uploaded_file.read())
+        # Yeh us temporary file ka path hai jise hum analysis ke liye istemal karenge
         video_path = tfile.name
 
     st.video(video_path)
