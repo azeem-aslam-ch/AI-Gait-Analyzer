@@ -1,5 +1,6 @@
-
-# gait_app.py (Version 7.2 - Risk Percentage Display Update)
+# gait_app.py (Version 7.1 - Debugging Update)
+# Is version mein humne error handling ko badla hai taake humein
+# Streamlit Cloud par aane wala asal error nazar aa sake.
 
 import streamlit as st
 import os
@@ -9,7 +10,7 @@ import tempfile
 # --- Page Configuration ---
 st.set_page_config(layout="wide", page_title="AI Gait Analyzer")
 
-st.title("🚶 AI Gait & Fall Risk Analyzer (Professional)")
+st.title("🚶 AI Gait & Fall Risk Analyzer (File Upload)")
 st.write("---")
 
 st.info("""
@@ -32,9 +33,10 @@ if uploaded_file is not None:
 
     st.video(video_path)
     
-    if st.button("Analyze Gait (Generate Professional Report)"):
+    if st.button("Analyze Gait (Generate Advanced Report)"):
         with st.spinner("Analyzing video... This may take a minute. Please wait."):
             try:
+                # Humari core logic (dimagh) ko call karein
                 report, processed_video_path, angles_df = gait_analyzer.analyze_video(video_path)
                 
                 if report:
@@ -44,33 +46,13 @@ if uploaded_file is not None:
                     # --- Professional Report ---
                     st.subheader("🩺 Professional Gait Analysis Report")
                     
-                    # Key Findings Section
                     st.info(f"**Detected Gait Type:** {report['gait_type']}")
                     
-                    col1, col2 = st.columns(2)
-                    col1.metric(
-                        label=f"Predicted Fall Risk: {report['fall_risk']}",
-                        value=f"{report['fall_risk_percentage']:.1f}%"
-                    )
-                    col2.metric("Overall Health Status", report['health_status'])
-
-                    # Recommendation Section with color coding
-                    if report['fall_risk'] == 'High':
-                        st.error(f"**⚠️ Recommendation:** {report['recommendation']}")
-                    elif report['fall_risk'] == 'Medium':
-                        st.warning(f"**💡 Recommendation:** {report['recommendation']}")
-                    else:
-                        st.success(f"**✅ Recommendation:** {report['recommendation']}")
-                    
-                    st.write("---")
-
-                    # Detailed Metrics Section
-                    with st.expander("Show Detailed Metrics"):
-                        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-                        m_col1.metric("Gait Speed", f"{report['gait_speed']:.2f} units/sec")
-                        m_col2.metric("Avg. Stride Time", f"{report['avg_stride_time']:.2f} sec")
-                        m_col3.metric("Step Asymmetry", f"{report['step_asymmetry']:.1f}%")
-                        m_col4.metric("Posture Sway", f"{report['posture_sway']:.2f} units")
+                    col1, col2, col3, col4 = st.columns(4)
+                    col1.metric("Gait Speed", f"{report['gait_speed']:.2f} units/sec")
+                    col2.metric("Avg. Stride Time", f"{report['avg_stride_time']:.2f} sec")
+                    col3.metric("Step Asymmetry", f"{report['step_asymmetry']:.1f}%")
+                    col4.metric("Posture Sway", f"{report['posture_sway']:.2f} units")
 
                     st.write("---")
 
@@ -91,8 +73,12 @@ if uploaded_file is not None:
                     st.line_chart(angles_df.set_index('frame'))
                 
                 else:
-                    st.error("Could not analyze the video. Please try again.")
+                    # Yeh message abhi bhi rahega agar analyzer 'None' return kare
+                    st.error("Could not analyze the video. The analyzer returned no data. Please try again with a different video.")
             
             except Exception as e:
-                st.error(f"An unexpected error occurred: {e}")
+                # YEH HISSA HUMNE BADLA HAI
+                # Ab yeh poora technical error dikhayega
+                st.error("An error occurred during analysis:")
+                st.exception(e)
 
