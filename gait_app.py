@@ -1,6 +1,5 @@
-# gait_app.py (Version 7.1 - Debugging Update)
-# Is version mein humne error handling ko badla hai taake humein
-# Streamlit Cloud par aane wala asal error nazar aa sake.
+# gait_app.py (Version 7.2 - Improved User Feedback)
+# Is version mein hum user ko behtar error message de rahe hain.
 
 import streamlit as st
 import os
@@ -38,9 +37,12 @@ if uploaded_file is not None:
         with st.spinner("Analyzing video... This may take a minute. Please wait."):
             try:
                 # Humari core logic (dimagh) ko call karein
-                report, processed_video_path, angles_df = gait_analyzer.analyze_video(video_path)
+                result = gait_analyzer.analyze_video(video_path)
                 
-                if report:
+                # YEH HISSA HUMNE BEHTAR BANAYA HAI
+                if result and result[0] is not None:
+                    report, processed_video_path, angles_df = result
+                    
                     st.success("Analysis Complete!")
                     st.write("---")
                     
@@ -74,12 +76,18 @@ if uploaded_file is not None:
                     st.line_chart(angles_df.set_index('frame'))
                 
                 else:
-                    # Yeh message abhi bhi rahega agar analyzer 'None' return kare
-                    st.error("Could not analyze the video. The analyzer returned no data. Please try again with a different video.")
+                    # Naya, behtar error message
+                    st.error("""
+                        **Analysis Failed: Could not detect a person.**
+
+                        The AI was unable to clearly identify a person's body in the video. Please try again with a different video that meets the following criteria:
+                        - The person is fully visible (head to toe).
+                        - The lighting is good.
+                        - The person is not too far from the camera.
+                        """)
             
             except Exception as e:
-                # YEH HISSA HUMNE BADLA HAI
-                # Ab yeh poora technical error dikhayega
-                st.error("An error occurred during analysis:")
+                # Technical error abhi bhi dikhayega agar koi aur masla ho
+                st.error("An unexpected technical error occurred:")
                 st.exception(e)
 
